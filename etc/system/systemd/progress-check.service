@@ -1,0 +1,14 @@
+[Unit]
+Description=Continuous Progress Checker
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/check_progress
+Restart=always
+RestartSec=5
+User=sysadmin
+StandardOutput=null
+StandardError=null
+
+[Install]
+WantedBy=multi-user.target

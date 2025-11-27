@@ -1,0 +1,10 @@
+[Unit]
+Description=Run mashup script every second
+
+[Timer]
+OnUnitActiveSec=1s
+AccuracySec=1s
+Unit=mashup.service
+
+[Install]
+WantedBy=timers.target

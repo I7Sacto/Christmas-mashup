@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Progress Checker every minute
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+Unit=progress-check.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=Spring Petclinic for Julia
+After=network.target
+
+[Service]
+User=julia
+WorkingDirectory=/home/julia/spring-petclinic
+ExecStart=/usr/bin/java -jar /home/julia/spring-petclinic/target/spring-petclinic-4.0.0-SNAPSHOT.jar --spring.profiles.active=julia --server.port=8081
+Restart=always
+RestartSec=10
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

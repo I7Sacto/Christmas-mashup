@@ -1,0 +1,9 @@
+[Unit]
+Description=Meshup Countdown Timer
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=60sec
+
+[Install]
+WantedBy=timers.target
