@@ -1,1 +1,32 @@
+#Змінення оболонки баша,відображення прогрес бар відсотків та таймаута
+progress_prompt() {
+    local pct by reset seg timeout
+
+    # Таймер — читаємо з файлу
+    if [[ -f /var/tmp/prompt_timeout.txt ]]; then
+        timeout=$(< /var/tmp/prompt_timeout.txt)
+    else
+        timeout="Залишилось часу: N/A"
+    fi 
+
+    # Прогрес‑бар
+    if [[ -f /var/tmp/progress.txt ]]; then
+        pct=$(< /var/tmp/progress.txt)
+
+        if [[ "$pct" =~ ^[0-9]+$ ]]; then
+            if (( pct < 50 )); then
+                bg=$(tput setab 1)
+            elif (( pct < 80 )); then
+                bg=$(tput setab 3)
+            else
+                bg=$(tput setab 2)
+            fi
+            reset=$(tput sgr0)
+            seg=$'\001'"${bg}"$'\002'"Progress: [ ${pct}% ]"$'\001'"${reset}"$'\002'' '
+        fi
+    fi
+
+    PS1="$timeout\n${seg}\u@\h:\w\$"
+}
+PROMPT_COMMAND=progress_prompt
 
