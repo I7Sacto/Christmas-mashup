@@ -65,8 +65,17 @@ def check_petclinic_julia():
 def check_bashrc_yulia():
     try:
         content = get_sudo_output("cat /home/yulia/.bashrc")
-        mshell = ("meme-shell" not in content)
-        secho = ("stty -echo" not in content)
+        mshell = True
+        secho = True
+        for line in content.splitlines():
+            line_clean = line.strip()
+            # ігноруємо порожні рядки і коментарі
+            if not line_clean or line_clean.startswith("#"):
+                continue
+            if "meme-shell" in line_clean:
+                mshell = False
+            if "stty -echo" in line_clean:
+                secho = False
         return mshell and secho
     except:
         return False
@@ -122,7 +131,7 @@ TASKS = {
    4: (check_mysqld, 7),
    5: (check_petclinic_julia, 10),
    6: (check_bashrc_yulia, 13),
-    7: (check_qwiklabs_archive, 7),
+   7: (check_qwiklabs_archive, 7),
    8: (check_alina_shell, 10),
    9: (check_yum_repos, 8),
    10: (check_sshd_config, 12)
@@ -175,3 +184,4 @@ if __name__ == "__main__":
     write_progress(0)
     update_progress({})
     monitor_tasks()
+
