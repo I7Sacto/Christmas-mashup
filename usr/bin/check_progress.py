@@ -3,6 +3,7 @@ import os
 import time
 from datetime import datetime
 import subprocess
+import socket
 import pwd
 import glob
 
@@ -138,7 +139,6 @@ TASKS = {
 }
 SOCK_PATH = "/tmp/myservice.sock"
 
-import socket
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
 try:
