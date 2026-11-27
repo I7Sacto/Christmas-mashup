@@ -48,20 +48,33 @@ def check_mysqld():
     return (subprocess.getoutput("systemctl is-active mysqld").strip() == "active" and
             subprocess.getoutput("systemctl is-enabled mysqld").strip() == "enabled")
 
-def check_prerouting_rule():
+def check_tarpit_rule():
     try:
-        output = get_sudo_output("iptables -t nat -S PREROUTING")
-        # True тільки якщо немає цього правила
-        return "-A PREROUTING -p tcp -m tcp --dport 8080 -j REDIRECT --to-ports 80" not in output
+        output = get_sudo_output("iptables -S INPUT")
+        rule_drop = "-A INPUT -p tcp -m tcp --dport 8082 --tcp-flags PSH PSH -j DROP"
+        rule_syn = "-A INPUT -p tcp -m tcp --dport 8082 --tcp-flags SYN,ACK,FIN,RST SYN -j ACCEPT"
+        return (rule_drop not in output) and (rule_syn not in output)
     except Exception as e:
         return False
 
-
-def check_petclinic_julia():
+def check_ls_trap():
+    trap_path = "/usr/local/bin/ls"
     try:
-        with open("/etc/systemd/system/petclinic-julia.service") as f:
-            return "--spring.profiles.active=mysql" in f.read()
-    except: return False
+        # Варіант 1: Файл видалено або перейменовано
+        if not os.path.exists(trap_path):
+            return True
+
+        # Варіант 2: З файлу забрали права на виконання (chmod -x)
+        if not os.access(trap_path, os.X_OK):
+            return True
+
+        # Варіант 3: Файл існує, але рядок з iptables видалено або закоментовано (#)
+        with open(trap_path, "r", errors="ignore") as f:
+            for line in f:
+                clean_line = line.strip()
+                # Якщо знайдено активний (не закоментований) виклик iptables — пастка ще працює
+                if clean_line and not clean_line.startswith("#") and "iptables" in clean_line:
+                    return False
 
 def check_bashrc_yulia():
     try:
@@ -126,16 +139,16 @@ def check_sshd_config():
 
 # --- Словник завдань з відсотками ---
 TASKS = {
-   1: (check_fstab, 15),
+   1: (check_fstab, 12),
    2: (check_petclinic_olena, 11),
-   3: (check_prerouting_rule, 7), 
+   3: (check_tarpit_rule, 13), 
    4: (check_mysqld, 7),
-   5: (check_petclinic_julia, 10),
-   6: (check_bashrc_yulia, 13),
+   5: (check_check_ls_trap, 15),
+   6: (check_bashrc_yulia, 7),
    7: (check_qwiklabs_archive, 7),
    8: (check_alina_shell, 10),
    9: (check_yum_repos, 8),
-   10: (check_sshd_config, 12)
+   10: (check_sshd_config, 10)
 }
 SOCK_PATH = "/tmp/myservice.sock"
 
